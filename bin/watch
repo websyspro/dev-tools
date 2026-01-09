@@ -1,0 +1,149 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Websyspro\Commons\Collection;
+use Websyspro\Commons\Util;
+
+/**
+ * Simple PHP directory watcher (src + tests by default)
+ * Runs a command when changes are detected.
+ *
+ * Usage:
+ *   vendor/bin/watch
+ *   vendor/bin/watch --dirs=src,tests --cmd="php index.php" --interval=1
+ */
+
+$root = getcwd();
+
+/**
+ * -------------------------------
+ * CLI OPTIONS
+ * -------------------------------
+ */
+$options = getopt(
+  "", 
+  [
+    "dirs::",
+    "cmd::",
+    "interval::"
+  ]
+);
+
+$dirsFromOptions = new Collection(
+  explode( ",", $options[ "dirs" ])
+);
+
+
+
+
+$directors = isset( $options[ "dirs" ])
+  ? $dirsFromOptions->mapper( fn( string $dir ) => trim($dir)
+	) : [ "src", "tests" ];
+
+$directors = $directors->mapper( 
+	fn(string $director) => Util::sprintFormat(
+		"%s/%s/%s", [ $root, DIRECTORY_SEPARATOR, $director ]
+	)
+);
+
+$directors = $directors->where(
+	fn(string $director) => (
+		is_dir( $director )
+	)
+);
+
+$ignoredPaths = [
+	DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR,
+	DIRECTORY_SEPARATOR . '.git' . DIRECTORY_SEPARATOR,
+	DIRECTORY_SEPARATOR . 'node_modules' . DIRECTORY_SEPARATOR,
+	DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR,
+	DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR
+];
+
+function snapshot(
+	array $directories,
+	array $directoriesIgnored
+): array {
+	$files = [];
+
+	foreach( $directories as $directory ){
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator(
+				$directory,
+				RecursiveDirectoryIterator::SKIP_DOTS
+			)
+		);
+
+		foreach ($iterator as $file){
+			if( !$file->isFile() ){
+					continue;
+			}
+
+			if($file->getExtension() !== "php" ){
+					continue;
+			}
+
+			$path = $file->getPathname();
+
+			foreach ( $directoriesIgnored as $ignore ) {
+				if (str_contains( $path, $ignore )) {
+					continue 2;
+				}
+			}
+
+			$files[ $path ] = $file->getMTime();
+		}
+	}
+
+	ksort($files);
+	return $files;
+}
+
+/**
+ * -------------------------------
+ * START WATCHING
+ * -------------------------------
+ */
+echo "Watching directories:\n";
+foreach ($directories as $dir) {
+   echo "   - {$dir}\n";
+}
+
+echo "Command: {$command}\n";
+echo "Interval: {$interval}s\n\n";
+
+if( $directors->exist() === true ){ 
+	$lastState = snapshot(
+		$directories, 
+		[]
+	);
+
+	$lastRun   = 0.0;
+
+	Util::loop(
+		function() use (
+			$directories, 
+			$lastState
+		) {
+			clearstatcache();
+			sleep( 1);
+
+			$currentState = snapshot( 
+				$directories, 
+				[]
+			);
+
+			if( $currentState !== $lastState ){
+				$nowState = microtime( true );
+			
+				// TO DO Messages here
+				echo "Waiting for changes...\n\n";
+
+				$lastState = $nowState;
+			} 
+		}
+	);
+}
+

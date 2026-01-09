@@ -1,0 +1,30 @@
+{
+  "name": "websyspro/devtools",
+  "description": "A lightweight PHP development utility that watches source directories for file changes and automatically re-executes a target PHP entry point.",
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "license": "MIT",
+  "type": "library",
+  "bin": [
+    "bin/watch"
+  ],  
+  "autoload": {
+    "psr-4": {
+      "Websyspro\\DevTools\\": "src/"
+    }   
+  },
+  "scripts": {
+    "git:push": "git add . && git commit -m \"Update components\" && git push origin HEAD",
+    "git:pull": "git pull origin main"
+  },
+  "authors": [
+    {
+      "name": "websyspro",
+      "email": "websyspro.services@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=8.1",
+    "websyspro/commons": "dev-main"
+  }  
+}
