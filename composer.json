@@ -10,7 +10,8 @@
   ],  
   "autoload": {
     "psr-4": {
-      "Websyspro\\DevTools\\": "src/"
+      "Websyspro\\DevTools\\": "src/",
+      "Websyspro\\DevTools\\Bin": "bin/"
     }   
   },
   "scripts": {
