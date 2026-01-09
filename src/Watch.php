@@ -9,7 +9,7 @@ class Watch
   private array $directoriesSnapshotLast = [];
 
   public function __construct(
-    private array $directories = [ "src" ],
+    private array $directories = [],
     private array $directoriesIgnored = [],
   ){}
 
@@ -172,6 +172,7 @@ class Watch
       );
       $this->doCommand();
     }
+
 
     $this->directoriesSnapshotLast = $this->directoriesSnapshotCurr;
   }  
