@@ -115,7 +115,7 @@ class Watching
   
   private function runEntryPoint(
   ): void {
-    echo "\n[Logger]\n\n";
+    echo "\n[Debug]\n\n";
     passthru( "php index.php" );
   }  
 
@@ -203,6 +203,14 @@ class Watching
     });
   }
 
+  private function LoggerInitial(
+  ): void {
+    print Util::sprintFormat(
+      "\033[1mWebsyspro DevTools · Watch\033[0m", [
+      ]
+    );
+  } 
+
   private function loopEvent(
   ): void {
     $this->defineWatchCurrentFiles();
@@ -217,6 +225,8 @@ class Watching
       if( $this->isWatchAdded() ){
         $this->watchAdded();
       }
+    } else {
+      $this->LoggerInitial();
     }
 
     $this->defineWatchLastedFiles();
