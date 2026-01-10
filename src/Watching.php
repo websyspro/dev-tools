@@ -162,6 +162,13 @@ class Watching
 
     echo "\033[2J\033[H";
   }
+
+  private function doEntryPoint(
+  ): string {
+    ob_start();
+    passthru( "php index.php" );
+    return ob_get_clean();
+  }
   
   /**
    * Executes the main entry point script
@@ -169,14 +176,11 @@ class Watching
   private function runEntryPoint(
   ): void {
     $startTime = microtime(true);
-    ob_start();
-    passthru( "php index.php" );
-    $output = ob_get_clean();
+    $output = $this->doEntryPoint();
     $endTime = microtime(true);
-    
+
     $executionTime = round(($endTime - $startTime) * 1000, 2);
-    echo "\n[Debug] {$executionTime}ms\n\n";
-    echo $output;
+    echo "\n[Debug] {$executionTime}ms\n\n {$output}";
   }  
 
   /**
