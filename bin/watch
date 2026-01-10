@@ -1,6 +1,7 @@
+#!/usr/bin/env php
 <?php
 
-namespace Websyspro\DevTools\Bin;
+require __DIR__ . '/../../../autoload.php';
 
 use Websyspro\DevTools\Watching;
 
