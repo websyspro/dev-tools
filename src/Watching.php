@@ -167,9 +167,10 @@ class Watching
    * Executes the main entry point script
    */
   private function runEntryPoint(
+    string $result
   ): void {
-    echo "\n[Debug]\n\n";
-    passthru( "php index.php" );
+    passthru( "php index.php", $result );
+    echo "\n[Debug]\n\n$result";
   }  
 
   /**
