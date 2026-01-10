@@ -3,5 +3,8 @@
     "src",
     "test",
     "tests"
+  ],
+  "files": [
+    "main.php"
   ]
 }

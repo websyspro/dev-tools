@@ -40,13 +40,14 @@ class Watching
   /**
    * Gets the path to the configuration file
    */
-  private function configFile(
+  private function rootPath(
+    string $file
   ): string {
     /* Build the full path to watch.json in current working directory */
     return implode(
       DIRECTORY_SEPARATOR, 
       [
-        getcwd(), "watch.json"
+        getcwd(), $file
       ]
     );
   }
@@ -56,13 +57,27 @@ class Watching
    */
   private function configFromJson(
   ): void {
-    /* Check if config file exists and load it, otherwise use default empty config */
-    File::exist( $this->configFile())
-      ? $this->watchConfig = new WatchConfig(
-        json_decode( 
-          File::get( $this->configFile())
-        )->directories
-      ) : $this->watchConfig = new WatchConfig();
+    /** File WatchJSON */
+    $watchJson = File::rootPath( 
+      "watch.json"
+    );
+
+    /** Check if the watch.json configuration file exists */
+    if( File::exist( $watchJson) ){
+      // Read and decode the JSON configuration file
+      $watchConfigFile = json_decode( 
+        File::get( $watchJson )
+      );
+
+      /** Create WatchConfig instance with directories and files from JSON */
+      $this->watchConfig = new WatchConfig(
+        $watchConfigFile->directories,
+        $watchConfigFile->files
+      );
+    } else {
+      /** If no config file exists, create default WatchConfig with empty settings */
+      $this->watchConfig = new WatchConfig();
+    }
   }
 
   /**
@@ -115,12 +130,24 @@ class Watching
   private function watchFiles(
   ): Collection {
     /* Reduce all directories into a single collection of files */
-    return new Collection(
+    $watchFiles = new Collection(
       $this->watchConfig->directories->reduce(
         [], fn(array $curr, string $directory) => Util::merge(
           $curr, $this->filesFromDirectory( $directory )
         )
       )
+    );
+
+    return $watchFiles->merge(
+      Util::mapper(
+        $this->watchConfig->files,
+        fn(string $file) => (
+          new WatchFile(
+            File::rootPath( $file ), 
+            File::timestamp(  $file)
+          )
+        )
+      )->all()
     );
   }
 

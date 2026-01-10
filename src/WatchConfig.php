@@ -11,14 +11,17 @@ use Websyspro\Commons\Collection;
 class WatchConfig
 {
   public Collection $directories; // Collection of directories to watch
+  public Collection $files;
 
   /**
    * Constructor - initializes with directories to watch
    */
   public function __construct(
-    array $directories = []
+    array $directories = [],
+    array $files = []
   ){
     $this->directories = new Collection( $directories );
+    $this->files = new Collection( $files );
   }
 
   /**
