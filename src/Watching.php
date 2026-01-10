@@ -18,9 +18,6 @@ class Watching
   private Collection $watchCurrent;  // Current state of watched files
   private Collection $watchLasted;   // Previous state for comparison
 
-  private string|float $startTime = 0;  // Execution start time for performance measurement
-  private string|float $endTime = 0;    // Execution end time for performance measurement
-
   /**
    * Constructor - initializes with directories and ignored patterns
    */
@@ -169,45 +166,16 @@ class Watching
   }
 
   /**
-   * Executes the entry point script and captures its output
-   * @return string The captured output from the executed script
-   */
-  private function doEntryPoint(
-  ): string {
-    /* Record start time for performance measurement */
-    $this->startTime = microtime(true);
-    /* Start output buffering to capture passthru output */
-    ob_start();
-    /* Execute the main application entry point */
-    passthru( "php index.php" );
-
-    /* Record end time and return captured output */
-    $this->endTime = microtime( true);
-    return ob_get_clean();
-  }
-
-  /**
-   * Calculates execution time in milliseconds
-   * @return float Execution time in milliseconds with 2 decimal precision
-   */
-  private function executionTime(
-  ): float {
-    /* Calculate difference and convert to milliseconds */
-    return round( (
-      $this->endTime - $this->startTime
-    ) * 1000, 2);
-  }
-  
-  /**
    * Executes the main entry point script with performance monitoring
    * Displays execution time before showing the script output
    */
   private function runEntryPoint(
   ): void {
-    /* Execute script and capture output */
-    $output = $this->doEntryPoint();
     /* Display debug info with execution time followed by script output */
-    echo "\n[Debug] {$this->executionTime()}ms\n\n{$output}";
+    echo "\n[Debug]\n\n";
+
+    /* Execute the main application entry point */
+    passthru( "php index.php" );
   }  
 
   /**
