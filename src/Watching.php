@@ -205,6 +205,7 @@ class Watching
 
   private function LoggerInitial(
   ): void {
+    $this->clearScreen();
     print Util::sprintFormat(
       "\033[1mWebsyspro DevTools · Watch\033[0m", [
       ]
