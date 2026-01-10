@@ -167,10 +167,12 @@ class Watching
    * Executes the main entry point script
    */
   private function runEntryPoint(
-    string $result
   ): void {
-    passthru( "php index.php", $result );
-    echo "\n[Debug]\n\n$result";
+    $startTime = microtime(true);
+    passthru( "php index.php" );
+    $endTime = microtime(true);
+    $executionTime = round(($endTime - $startTime) * 1000, 2);
+    echo "\n[Debug] {$executionTime}ms\n";
   }  
 
   /**
