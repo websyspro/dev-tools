@@ -18,6 +18,9 @@ class Watching
   private Collection $watchCurrent;  // Current state of watched files
   private Collection $watchLasted;   // Previous state for comparison
 
+  private string|float $startTime = 0;  // Execution start time for performance measurement
+  private string|float $endTime = 0;    // Execution end time for performance measurement
+
   /**
    * Constructor - initializes with directories and ignored patterns
    */
@@ -152,58 +155,88 @@ class Watching
   }
 
   /**
-   * Clears the terminal screen
+   * Clears the terminal screen for better output visibility
    */
   public function clearScreen(
   ): void {
+    /* Skip clearing in CI environments or when output is redirected */
     if (function_exists( "posix_isatty" ) && !posix_isatty(STDOUT)) {
         return; // CI / redirect
     }
 
+    /* ANSI escape codes to clear screen and move cursor to top-left */
     echo "\033[2J\033[H";
   }
 
+  /**
+   * Executes the entry point script and captures its output
+   * @return string The captured output from the executed script
+   */
   private function doEntryPoint(
   ): string {
+    /* Record start time for performance measurement */
+    $this->startTime = microtime(true);
+    /* Start output buffering to capture passthru output */
     ob_start();
+    /* Execute the main application entry point */
     passthru( "php index.php" );
+
+    /* Record end time and return captured output */
+    $this->endTime = microtime( true);
     return ob_get_clean();
+  }
+
+  /**
+   * Calculates execution time in milliseconds
+   * @return float Execution time in milliseconds with 2 decimal precision
+   */
+  private function executionTime(
+  ): float {
+    /* Calculate difference and convert to milliseconds */
+    return round( (
+      $this->endTime - $this->startTime
+    ) * 1000, 2);
   }
   
   /**
-   * Executes the main entry point script
+   * Executes the main entry point script with performance monitoring
+   * Displays execution time before showing the script output
    */
   private function runEntryPoint(
   ): void {
-    $startTime = microtime(true);
+    /* Execute script and capture output */
     $output = $this->doEntryPoint();
-    $endTime = microtime(true);
-
-    $executionTime = round(($endTime - $startTime) * 1000, 2);
-    echo "\n[Debug] {$executionTime}ms\n\n {$output}";
+    /* Display debug info with execution time followed by script output */
+    echo "\n[Debug] {$this->executionTime()}ms\n\n{$output}";
   }  
 
   /**
-   * Displays formatted log message for file changes
+   * Displays formatted log message for file changes with colored output
+   * @param WatchFile $watchFile The file that was changed
+   * @param FileStatus $fileStatus The type of change (Added/Modified/Removed)
    */
   private function defineLogger(
     WatchFile $watchFile,
     FileStatus $fileStatus
   ): void {
+    /* Clear screen for fresh output */
     $this->clearScreen();
 
+    /* Define colors for different file status types */
     $color = match($fileStatus){
       FileStatus::Added => "\033[32m",    // Green
       FileStatus::Modified => "\033[33m", // Yellow
       FileStatus::Removed => "\033[31m",  // Red
     };
 
+    /* Display formatted header with file change information */
     print Util::sprintFormat(
       "\033[1mWebsyspro DevTools · Watch\033[0m\n\n%s[%s]\033[0m %s @ %s\n", [
         $color, $fileStatus->name, $watchFile->path, $watchFile->timestamp()
       ]
     );
 
+    /* Execute the entry point and show results */
     $this->runEntryPoint();
   }
 
@@ -299,9 +332,11 @@ class Watching
 
   /**
    * Displays initial logger message when starting to watch
+   * Shows the main header without any file change information
    */
   private function LoggerInitial(
   ): void {
+    /* Clear screen and display initial watch header */
     $this->clearScreen();
     print Util::sprintFormat(
       "\033[1mWebsyspro DevTools · Watch\033[0m", [
@@ -311,12 +346,16 @@ class Watching
 
   /**
    * Processes a single loop iteration for file change detection
+   * Compares current file state with previous state to detect changes
    */
   private function loopEvent(
   ): void {
+    /* Update current file state */
     $this->defineWatchCurrentFiles();
 
+    /* Check if this is not the first iteration */
     if( $this->isLoopEvent() ) {
+      /* Determine type of change and process accordingly */
       if( $this->isWatchModified() ){
         $this->watchModified();    
       } else
@@ -327,21 +366,27 @@ class Watching
         $this->watchAdded();
       }
     } else {
+      /* First iteration - show initial message */
       $this->LoggerInitial();
     }
 
+    /* Save current state as previous for next iteration */
     $this->defineWatchLastedFiles();
   }
 
   /**
    * Main monitoring loop that runs indefinitely
+   * Continuously checks for file changes every second
    */
   private function loop(
   ): never {
     while(true){
-      clearstatcache(); // Clear file system cache
-      sleep( 1 );       // Wait 1 second between checks
+      /* Clear file system cache to ensure fresh file stats */
+      clearstatcache();
+      /* Wait 1 second between checks to avoid excessive CPU usage */
+      sleep( 1 );
 
+      /* Only process if watch configuration exists */
       if($this->watchConfig->exist()){
         $this->loopEvent();
       }
