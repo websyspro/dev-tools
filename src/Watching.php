@@ -169,10 +169,14 @@ class Watching
   private function runEntryPoint(
   ): void {
     $startTime = microtime(true);
+    ob_start();
     passthru( "php index.php" );
+    $output = ob_get_clean();
     $endTime = microtime(true);
+    
     $executionTime = round(($endTime - $startTime) * 1000, 2);
-    echo "\n[Debug] {$executionTime}ms\n";
+    echo "\n[Debug] {$executionTime}ms\n\n";
+    echo $output;
   }  
 
   /**
