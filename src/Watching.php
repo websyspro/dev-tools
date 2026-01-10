@@ -12,7 +12,5 @@ class Watching
   ){}
 
   public function listen(
-  ): void {
-    var_dump(getcwd());
-  }
+  ): void {}
 }
