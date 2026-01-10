@@ -139,8 +139,7 @@ class Watching
     );
 
     return $watchFiles->merge(
-      Util::mapper(
-        $this->watchConfig->files,
+      $this->watchConfig->files->mapper(
         fn(string $file) => (
           new WatchFile(
             File::rootPath( $file ), 
