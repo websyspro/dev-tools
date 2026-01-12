@@ -17,6 +17,7 @@ class Watching
   private WatchConfig $watchConfig;  // Configuration for watching
   private Collection $watchCurrent;  // Current state of watched files
   private Collection $watchLasted;   // Previous state for comparison
+  private Collection $events;
 
   /**
    * Constructor - initializes with directories and ignored patterns
@@ -25,6 +26,16 @@ class Watching
     private Collection $directories = new Collection(),
     private Collection $ignoreds = new Collection()
   ){}
+
+  public function on(
+    string $events
+  ): void {
+    if(isset( $this->events ) === false){
+      $this->events = new Collection();
+    } else 
+    
+    $this->events->add( $events );
+  }
 
   /**
    * Starts the file watching process
@@ -209,29 +220,45 @@ class Watching
    * @param WatchFile $watchFile The file that was changed
    * @param FileStatus $fileStatus The type of change (Added/Modified/Removed)
    */
-  private function defineLogger(
+  private function doEvent(
     WatchFile $watchFile,
     FileStatus $fileStatus
   ): void {
-    /* Clear screen for fresh output */
-    $this->clearScreen();
-
-    /* Define colors for different file status types */
-    $color = match($fileStatus){
-      FileStatus::Added => "\033[32m",    // Green
-      FileStatus::Modified => "\033[33m", // Yellow
-      FileStatus::Removed => "\033[31m",  // Red
-    };
-
-    /* Display formatted header with file change information */
-    print Util::sprintFormat(
-      "\033[1mWebsyspro DevTools · Watch\033[0m\n\n%s[%s]\033[0m %s @ %s\n", [
-        $color, $fileStatus->name, $watchFile->path, $watchFile->timestamp()
-      ]
+    $this->events->mapper(
+      function(
+        string $event
+      ) use(
+        $watchFile, 
+        $fileStatus
+      ) {
+        if( class_exists( $event ) === true ){
+          Util::callUserClassFN( 
+            new $event, "handle", 
+            [ $watchFile, $fileStatus ]
+          );
+        }
+      }
     );
 
+    /* Clear screen for fresh output */
+    // $this->clearScreen();
+
+    /* Define colors for different file status types */
+    // $color = match($fileStatus){
+    //   FileStatus::Added => "\033[32m",    // Green
+    //   FileStatus::Modified => "\033[33m", // Yellow
+    //   FileStatus::Removed => "\033[31m",  // Red
+    // };
+
+    /* Display formatted header with file change information */
+    // print Util::sprintFormat(
+    //   "\033[1mWebsyspro DevTools · Watch\033[0m\n\n%s[%s]\033[0m %s @ %s\n", [
+    //     $color, $fileStatus->name, $watchFile->path, $watchFile->timestamp()
+    //   ]
+    // );
+
     /* Execute the entry point and show results */
-    $this->runEntryPoint();
+    // $this->runEntryPoint();
   }
 
   /**
@@ -260,7 +287,7 @@ class Watching
   private function watchModified(
   ): void {
     $this->watchModifiedDiff()->mapper( function(WatchFile $watchFile ) {
-      $this->defineLogger( $watchFile, FileStatus::Modified );
+      $this->doEvent( $watchFile, FileStatus::Modified );
     });
   }
 
@@ -290,7 +317,7 @@ class Watching
   private function watchRemoved(
   ): void {
     $this->watchRemovedDiff()->mapper( function(WatchFile $watchFile ) {
-      $this->defineLogger( $watchFile, FileStatus::Removed );
+      $this->doEvent( $watchFile, FileStatus::Removed );
     });
   }
   
@@ -320,7 +347,7 @@ class Watching
   private function watchAdded(
   ): void {
     $this->watchAddedDiff()->mapper( function(WatchFile $watchFile ) {
-      $this->defineLogger( $watchFile, FileStatus::Added );
+      $this->doEvent( $watchFile, FileStatus::Added );
     });
   }
 
