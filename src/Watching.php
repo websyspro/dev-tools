@@ -32,7 +32,7 @@ class Watching
   ): void {
     if(isset( $this->events ) === false){
       $this->events = new Collection();
-    } else 
+    }
     
     $this->events->add( $events );
   }
