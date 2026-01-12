@@ -44,9 +44,9 @@ class EventWatch
 
     /* Define colors for different file status types */
     $color = match($fileStatus){
-      FileStatus::Added => "\033[32m",    // Green
+      FileStatus::Added => "\033[32m", // Green
+      FileStatus::Removed => "\033[31m", // Red
       FileStatus::Modified => "\033[33m", // Yellow
-      FileStatus::Removed => "\033[31m",  // Red
     };
 
     /* Display formatted header with file change information */
