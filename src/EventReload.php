@@ -27,8 +27,6 @@ class EventReload
     /* Clear screen for fresh output */
     $this->clearScreen();
 
-    echo $watchFile->path . "\r\n";
-
     // EventReload::$webSocket->send( 
     //   "reloads from Menssage"
     // );
@@ -52,12 +50,5 @@ class EventReload
 
     /* ANSI escape codes to clear screen and move cursor to top-left */
     echo "\033[2J\033[H";
-  } 
-
-  private function defineWebSocket(
-  ): void {
-    if( isset( EventReload::$webSocket ) === false ){
-      EventReload::$webSocket = new WebSocket( 3000);
-    }
   }
 }
