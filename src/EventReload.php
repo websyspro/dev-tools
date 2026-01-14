@@ -14,8 +14,8 @@ class EventReload
   public function statup(
     WatchConfig|null $watchConfig = null
   ) {
-    $this->defineWebSocket();
-    $this->defineRegisterShutdown();
+    // $this->defineWebSocket();
+    // $this->defineRegisterShutdown();
   }
 
 
@@ -72,6 +72,6 @@ class EventReload
 
         echo "\n[Reload] All processes terminated.\n";
       }
-    );    
+    );
   }
 }
