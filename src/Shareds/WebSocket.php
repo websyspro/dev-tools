@@ -206,7 +206,6 @@ class WebSocket
 
   private function startup(
   ) {
-    $this->defineClients();
     $this->defineSocket();
     $this->defineListen();
   }
