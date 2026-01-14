@@ -70,6 +70,8 @@ class WebSocket
   private function unmask(
     string $payload
   ) {
+    print_r($payload);
+
     $length = \ord( $payload[ 1 ]) & 127;
 
     if( $length === 126 ){
