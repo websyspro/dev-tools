@@ -9,7 +9,7 @@ use Websyspro\Commons\Util;
 class WebSocket
 {
   public static Socket $socket;
-  public static Collection $clients;
+  public static array $clients = [];
 
   public function __construct(
     private int $port = 3000
@@ -17,39 +17,17 @@ class WebSocket
     $this->startup();
   }
 
-  private function defineClients(
-  ): void {
-    if( isset( WebSocket::$clients ) === false ){
-      WebSocket::$clients = new Collection();
-    }
-  }
-
   private function defineSocket(
   ) {
     if( isset( WebSocket::$socket ) === false ){
-      WebSocket::$socket = socket_create( 
-        AF_INET, 
-        SOCK_STREAM,
-        SOL_TCP
-      );
+      WebSocket::$socket = socket_create( AF_INET, SOCK_STREAM,SOL_TCP );
 
       if( WebSocket::$socket instanceof Socket ){
-        socket_set_option( 
-          WebSocket::$socket,
-          SOL_SOCKET,
-          SO_REUSEADDR,
-          1
-        );
-
-        socket_bind( 
-          WebSocket::$socket,
-          "0.0.0.0", 
-          $this->port
-        );
-
-        socket_listen(
-          WebSocket::$socket
-        );      
+        socket_set_option( WebSocket::$socket, SOL_SOCKET, SO_REUSEADDR, 1 );
+        socket_bind( WebSocket::$socket, "0.0.0.0", $this->port );
+        socket_listen( WebSocket::$socket ); 
+        
+        WebSocket::$clients[] = WebSocket::$socket;
       }
     }
   }
@@ -147,7 +125,8 @@ class WebSocket
   public function send(
     string $message
   ) {
-    WebSocket::$clients->mapper(
+    Util::mapper(
+      WebSocket::$clients,
       function( Socket $socket ) use( $message )  {
         if( WebSocket::$socket === $socket ){
           return $socket;
@@ -175,7 +154,7 @@ class WebSocket
   private function defineListen(
   ): never {
     while(true){
-      $sockets = WebSocket::$clients->all();
+      $sockets = WebSocket::$clients;
 
       socket_select(
         $sockets,
@@ -187,10 +166,8 @@ class WebSocket
 
       foreach( $sockets as $socket ){
         if ( WebSocket::$socket === $socket ){
-          WebSocket::$clients->add(
-            $client = socket_accept(
-              WebSocket::$socket
-            )
+          WebSocket::$clients[] = $client = socket_accept(
+            WebSocket::$socket
           );
 
           $request = socket_read(
