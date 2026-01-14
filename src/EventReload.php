@@ -26,7 +26,8 @@ class EventReload
     /* Clear screen for fresh output */
     $this->clearScreen();
 
-    echo $watchFile->path;
+    var_dump( getcwd() );
+    var_dump( __FILE__ );
 
     // EventReload::$webSocket->send( 
     //   "reloads from Menssage"
