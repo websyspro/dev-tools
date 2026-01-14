@@ -70,7 +70,9 @@ class WebSocket
   private function unmask(
     string $payload
   ) {
-    print_r($payload);
+    if(Util::sizeText($payload) < 2){
+      return "";
+    }
 
     $length = \ord( $payload[ 1 ]) & 127;
 
@@ -201,7 +203,6 @@ class WebSocket
         }
 
         $message = $this->unmask( $socketData);
-        echo "Recebido: $message\n";
       }      
     }
   }
