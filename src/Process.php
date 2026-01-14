@@ -15,9 +15,7 @@ class Process
   }
 
   public function registerRun(
-  ) {
-
-  }
+  ) {}
 
   public function websocket(
   ) {}
