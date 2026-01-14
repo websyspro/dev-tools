@@ -24,6 +24,9 @@ use Websyspro\Commons\Util;
  */
 class EventWatch
 {
+  public function statup(
+  ) {}
+
   /**
    * Handle file system events and display formatted output
    * 
