@@ -4,7 +4,7 @@ namespace Websyspro\DevTools\Shareds;
 
 use RuntimeException;
 
-class RunTime
+class Run
 {
   public mixed $process;
 
@@ -19,8 +19,8 @@ class RunTime
     ) === "WIN" ? "NUL" : "php://null";
   }
 
-  public function run(
-    string $command, 
+  public function command(
+    string $message, 
     bool $silence = true
   ): void {
     $descriptors = [
@@ -30,13 +30,13 @@ class RunTime
     ];
 
     $this->process = proc_open(
-      $command, 
+      $message, 
       $descriptors, 
       $pipes
     );
 
     if( \is_resource( $this->process )){
-      throw new RuntimeException("Could not start process: {$command}");
+      throw new RuntimeException("Could not start process: {$message}");
     }
   }
 }

@@ -3,22 +3,31 @@
 namespace Websyspro\DevTools;
 
 use Websyspro\Commons\Collection;
-use Websyspro\DevTools\Shareds\RunTime;
+use Websyspro\Commons\Util;
+use Websyspro\DevTools\Shareds\Run;
 
 class Process
 {
-  private static Collection $runTimes;
+  private static Collection $runs;
 
   public function __construct(
   ){
     $this->registerShutdown();
   }
 
-  public function registerRun(
-  ) {}
-
   public function websocket(
-  ) {}
+  ) {
+    $run = new Run();
+    $run->command( Util::sprintFormat(
+      "php Starteds%sWebsocket.php", [
+        DIRECTORY_SEPARATOR
+      ]
+    ));
+
+    if( $run->process !== false ){
+      Process::$runs->add( $run );
+    }
+  }
 
   public function router(
   ) {}
@@ -27,10 +36,10 @@ class Process
   ) {
     register_shutdown_function(
       function () {
-        Process::$runTimes->mapper(
-          function( RunTime $runTime ){
-            if( \is_resource( $runTime->process )){
-              proc_terminate( $runTime->process);
+        Process::$runs->mapper(
+          function( Run $run ){
+            if( \is_resource( $run->process )){
+              proc_terminate( $run->process);
             }
           }
         );
