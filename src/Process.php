@@ -17,6 +17,8 @@ class Process
 
   public function websocket(
   ) {
+    var_dump( __FILE__ );
+
     $run = new Run();
     $run->command( Util::sprintFormat(
       "php Starteds%sWebsocket.php", [
