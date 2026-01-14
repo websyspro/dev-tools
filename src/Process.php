@@ -3,14 +3,14 @@
 namespace Websyspro\DevTools;
 
 use Websyspro\Commons\Collection;
+use Websyspro\DevTools\Shareds\RunTime;
 
 class Process
 {
-  private static Collection $processes;
+  private static Collection $runTimes;
 
   public function __construct(
   ){
-    $this->registerRun();
     $this->registerShutdown();
   }
 
@@ -23,14 +23,14 @@ class Process
   public function router(
   ) {}
 
-  private function registerShutdown(
+  private function registerShutdown( 
   ) {
     register_shutdown_function(
       function () {
-        Process::$processes->mapper(
-          function($process){
-            if( \is_resource( $process )){
-              proc_terminate( $process);
+        Process::$runTimes->mapper(
+          function(RunTime $runTime){
+            if( \is_resource( $runTime->process )){
+              proc_terminate( $runTime->process);
             }
           }
         );
@@ -40,5 +40,3 @@ class Process
     );
   }  
 }
-
-new Process();

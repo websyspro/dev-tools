@@ -6,7 +6,9 @@ use RuntimeException;
 
 class RunTime
 {
-  public static function osSystemOrNull(
+  public mixed $process;
+
+  public function osSystemOrNull(
   ) {
     return strtoupper( 
       substr(
@@ -17,26 +19,24 @@ class RunTime
     ) === "WIN" ? "NUL" : "php://null";
   }
 
-  public static function run(
+  public function run(
     string $command, 
     bool $silence = true
-  ) {
+  ): void {
     $descriptors = [
       0 => [ "pipe", "r" ],
-      1 => $silence ? [ "file", RunTime::osSystemOrNull(), "w" ] : [ "pipe", "w" ],
-      2 => $silence ? [ "file", RunTime::osSystemOrNull(), "w" ] : [ "pipe", "w" ],
+      1 => $silence ? [ "file", $this->osSystemOrNull(), "w" ] : [ "pipe", "w" ],
+      2 => $silence ? [ "file", $this->osSystemOrNull(), "w" ] : [ "pipe", "w" ],
     ];
 
-    $process = proc_open(
+    $this->process = proc_open(
       $command, 
       $descriptors, 
       $pipes
     );
 
-    if( \is_resource( $process )){
+    if( \is_resource( $this->process )){
       throw new RuntimeException("Could not start process: {$command}");
-    }    
-
-    return $process;
+    }
   }
 }

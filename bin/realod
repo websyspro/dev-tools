@@ -10,11 +10,11 @@ $watching = new Watching();
 $watching->on( EventReload::class );
 $watching->listen();
 
-$router = __DIR__ . '/../websyspro/devtools/RouteEntryPoint.php';
+// $router = __DIR__ . '/../websyspro/devtools/RouteEntryPoint.php';
 
-passthru( sprintf(
-  'php -S %s:%d %s',
-  $host,
-  $port,
-  escapeshellarg($router)
-));
+// passthru( sprintf(
+//   'php -S %s:%d %s',
+//   $host,
+//   $port,
+//   escapeshellarg($router)
+// ));

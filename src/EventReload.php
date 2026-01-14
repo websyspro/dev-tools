@@ -14,8 +14,8 @@ class EventReload
   public function statup(
     WatchConfig|null $watchConfig = null
   ) {
-    // $this->defineWebSocket();
-    // $this->defineRegisterShutdown();
+    // Enviar commandos processs
+    
   }
 
 
@@ -26,9 +26,11 @@ class EventReload
     /* Clear screen for fresh output */
     $this->clearScreen();
 
-    EventReload::$webSocket->send( 
-      "reloads from Menssage"
-    );
+    echo $watchFile->path;
+
+    // EventReload::$webSocket->send( 
+    //   "reloads from Menssage"
+    // );
   }  
 
   /**
@@ -56,22 +58,5 @@ class EventReload
     if( isset( EventReload::$webSocket ) === false ){
       EventReload::$webSocket = new WebSocket( 3000);
     }
-  }
-  
-  private function defineRegisterShutdown(
-  ) {
-    register_shutdown_function(
-      function () {
-        EventReload::$processes->mapper(
-          function($process){
-            if( \is_resource( $process )){
-              proc_terminate( $process);
-            }
-          }
-        );
-
-        echo "\n[Reload] All processes terminated.\n";
-      }
-    );
   }
 }
