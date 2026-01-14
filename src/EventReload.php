@@ -26,19 +26,18 @@ class EventReload
   ): void {
     /* Clear screen for fresh output */
     $this->clearScreen();
-
     $this->notifyClients();
   }
 
   private function notifyClients(): void {
     $socket = @socket_create( AF_INET, SOCK_STREAM, SOL_TCP);
-    if( $socket === false ) return;
-
-    if(@socket_connect( $socket, '127.0.0.1', 3000)) {
-      socket_write( $socket, "notification" );
-      socket_close( $socket );
+    if( $socket ){
+      if( socket_connect( $socket, '127.0.0.1', 3000 )){
+        socket_write( $socket, "notification" );
+        socket_close( $socket );
+      }
     }
-  }  
+  } 
 
   /**
    * Clear the terminal screen for fresh output display

@@ -202,8 +202,7 @@ class WebSocket
           continue;
         }
 
-        $message = $this->unmask( $socketData);
-        file_put_contents( "soket.sock", $message );
+        $message = $this->unmask( $socketData );
       }      
     }
   }
