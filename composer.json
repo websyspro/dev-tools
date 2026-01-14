@@ -6,7 +6,8 @@
   "license": "MIT",
   "type": "library",
   "bin": [
-    "bin/watch"
+    "bin/watch",
+    "bin/reload"
   ],  
   "autoload": {
     "psr-4": {
