@@ -8,13 +8,16 @@ use Websyspro\DevTools\Shareds\WebSocket;
 class EventReload
 {
   private static WebSocket $webSocket;
-  private static Collection $processes;
+  private static Process $process;
 
   public function statup(
     WatchConfig|null $watchConfig = null
   ) {
-    // Enviar commandos processs
-    echo "Server runing at: XXXXXXXXXXXXXXXXXXXXX\n";
+    if( isset( EventReload::$process ) === false ){
+      EventReload::$process = new Process();
+    }
+
+    EventReload::$process->websocket();
   }
 
   public function handle(
@@ -23,9 +26,6 @@ class EventReload
   ): void {
     /* Clear screen for fresh output */
     $this->clearScreen();
-
-    var_dump( getcwd() );
-    var_dump( __FILE__ );
 
     // EventReload::$webSocket->send( 
     //   "reloads from Menssage"

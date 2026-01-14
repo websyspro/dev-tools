@@ -28,7 +28,7 @@ class Process
     register_shutdown_function(
       function () {
         Process::$runTimes->mapper(
-          function(RunTime $runTime){
+          function( RunTime $runTime ){
             if( \is_resource( $runTime->process )){
               proc_terminate( $runTime->process);
             }
