@@ -8,17 +8,31 @@ use Websyspro\DevTools\Shareds\Run;
 
 class Process
 {
-  private static Collection $runs = new Collection();
+  private static Collection $runs;
 
   public function __construct(
   ){
     $this->registerShutdown();
   }
 
+  private function createRun(
+    string $message
+  ) {
+    if( !isset( Process::$runs )){
+      Process::$runs = new Collection();
+    }
+
+    $run = new Run();
+    $run->command( $message );
+
+    if( $run->process !== false ){
+      Process::$runs->add( $run );
+    }
+  }
+
   public function websocket(
   ) {
-    $run = new Run();
-    $run->command( 
+    $this->createRun(
       Util::sprintFormat( 
         "php %s", [
           Util::path( [ 
@@ -27,10 +41,6 @@ class Process
         ]
       )
     );
-
-    if( $run->process !== false ){
-      Process::$runs->add( $run );
-    }
   }
 
   public function router(
