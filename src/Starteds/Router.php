@@ -1,3 +1,3 @@
 <?php
 
-namespace Websyspro\DevTools\Starteds;
+require __DIR__ . "/../../../autoload.php";
