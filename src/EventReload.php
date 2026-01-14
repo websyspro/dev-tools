@@ -32,7 +32,7 @@ class EventReload
   private function notifyClients(): void {
     $socket = @socket_create( AF_INET, SOCK_STREAM, SOL_TCP);
     if( $socket ){
-      if( socket_connect( $socket, '127.0.0.1', 3000 )){
+      if( socket_connect( $socket, '127.0.0.1', 3000 ) === true){
         socket_write( $socket, "notification" );
         socket_close( $socket );
       }
