@@ -3,7 +3,6 @@
 namespace Websyspro\DevTools;
 
 use Websyspro\Commons\Collection;
-use Websyspro\Commons\Util;
 use Websyspro\DevTools\Shareds\WebSocket;
 
 class EventReload
@@ -15,9 +14,8 @@ class EventReload
     WatchConfig|null $watchConfig = null
   ) {
     // Enviar commandos processs
-    
+    echo "Server runing at: XXXXXXXXXXXXXXXXXXXXX\n";
   }
-
 
   public function handle(
     WatchFile $watchFile,

@@ -49,21 +49,6 @@ class Watching
   }
 
   /**
-   * Gets the path to the configuration file
-   */
-  private function rootPath(
-    string $file
-  ): string {
-    /* Build the full path to watch.json in current working directory */
-    return implode(
-      DIRECTORY_SEPARATOR, 
-      [
-        getcwd(), $file
-      ]
-    );
-  }
-
-  /**
    * Loads configuration from JSON file
    */
   private function configFromJson(
@@ -202,18 +187,20 @@ class Watching
     echo "\033[2J\033[H";
   }
 
-  /**
-   * Executes the main entry point script with performance monitoring
-   * Displays execution time before showing the script output
-   */
-  private function runEntryPoint(
+  private function doStatup(
   ): void {
-    /* Display debug info with execution time followed by script output */
-    echo "\n[Debug]\n\n";
-
-    /* Execute the main application entry point */
-    passthru( "php index.php" );
-  }  
+    $this->events->mapper(
+      function(
+        string $event
+      ) {
+        if( class_exists( $event ) === true ){
+          Util::callUserClassFN( 
+            new $event, "statup", []
+          );
+        }
+      }
+    );    
+  }
 
   /**
    * Displays formatted log message for file changes with colored output
@@ -401,6 +388,8 @@ class Watching
    */
   private function loop(
   ): never {
+    $this->doStatup();
+
     while(true){
       /* Clear file system cache to ensure fresh file stats */
       clearstatcache();
