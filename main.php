@@ -1,6 +1,5 @@
 <?php
 
-use Websyspro\DevTools\Watching;
+use Websyspro\DevTools\Shareds\WebSocket;
 
-$watching = new Watching();
-$watching->listen();
+$ws = new WebSocket(3000);

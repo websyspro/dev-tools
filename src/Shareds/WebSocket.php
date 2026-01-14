@@ -8,8 +8,9 @@ use Websyspro\Commons\Util;
 
 class WebSocket
 {
-  public static Socket $socket;
-  public static array $clients = [];
+  private Socket $socket;
+  private array $browsers = [];
+  private array $notifiers = [];
 
   public function __construct(
     private int $port = 3000
@@ -17,199 +18,182 @@ class WebSocket
     $this->startup();
   }
 
-  private function defineSocket(
-  ) {
-    if( isset( WebSocket::$socket ) === false ){
-      WebSocket::$socket = socket_create( AF_INET, SOCK_STREAM,SOL_TCP );
+  private function defineSocket(): void
+  {
+    $this->socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+    socket_set_option($this->socket, SOL_SOCKET, SO_REUSEADDR, 1);
+    socket_bind($this->socket, "0.0.0.0", $this->port);
+    socket_listen($this->socket);
+  }
 
-      if( WebSocket::$socket instanceof Socket ){
-        socket_set_option( WebSocket::$socket, SOL_SOCKET, SO_REUSEADDR, 1 );
-        socket_bind( WebSocket::$socket, "0.0.0.0", $this->port );
-        socket_listen( WebSocket::$socket ); 
-        
-        WebSocket::$clients[] = WebSocket::$socket;
-      }
+  private function handshake(Socket $client, string $headers, string $type): void
+  {
+    preg_match("#Sec-WebSocket-Key: (.*)\r\n#", $headers, $match);
+    $key = trim($match[1]);
+    $acceptKey = base64_encode(sha1("{$key}258EAFA5-E914-47DA-95CA-C5AB0DC85B11", true));
+
+    $response = "HTTP/1.1 101 Switching Protocols\r\n" .
+                "Upgrade: websocket\r\n" .
+                "Connection: Upgrade\r\n" .
+                "Sec-WebSocket-Accept: {$acceptKey}\r\n\r\n";
+
+    socket_write($client, $response, strlen($response));
+
+    if($type === 'browser'){
+      $this->browsers[] = $client;
+    } else {
+      $this->notifiers[] = $client;
     }
   }
 
-  private function handshake(
-    Socket $client, 
-    string $headers
-  ) {
-    preg_match( 
-      "#Sec-WebSocket-Key: (.*)\r\n#",
-      $headers,
-      $match
-    );
+  private function unmask(string $payload): string
+  {
+    if(strlen($payload) < 2) return "";
 
-    $key = trim( $match[ 1 ]);
+    $length = ord($payload[1]) & 127;
 
-    $acceptKey = base64_encode(
-      sha1(
-        "{$key}258EAFA5-E914-47DA-95CA-C5AB0DC85B11", 
-        true
-      )
-    );
-
-    $upgrade = new Collection([
-      "HTTP/1.1 101 Switching Protocols",
-      "Upgrade: websocket",
-      "Connection: Upgrade",
-      "Sec-WebSocket-Accept: $acceptKey\r\n"
-    ]);
-
-    socket_write(
-      $client, 
-      $upgrade->joinWithBreak(), 
-      Util::sizeText(
-        $upgrade->joinWithBreak()
-      )
-    );
-  }
-
-  private function unmask(
-    string $payload
-  ) {
-    if(Util::sizeText($payload) < 2){
-      return "";
-    }
-
-    $length = \ord( $payload[ 1 ]) & 127;
-
-    if( $length === 126 ){
+    if($length === 126){
       $masks = substr($payload, 4, 4);
-      $data  = substr($payload, 8);
-    } elseif ( $length === 127 ) {
+      $data = substr($payload, 8);
+    } elseif($length === 127){
       $masks = substr($payload, 10, 4);
-      $data  = substr($payload, 14);
+      $data = substr($payload, 14);
     } else {
       $masks = substr($payload, 2, 4);
-      $data  = substr($payload, 6);
+      $data = substr($payload, 6);
     }
 
     $text = '';
-    for ($i = 0; $i < strlen($data); $i++) {
-        $text .= $data[$i] ^ $masks[$i % 4];
+    for($i = 0; $i < strlen($data); $i++){
+      $text .= $data[$i] ^ $masks[$i % 4];
     }
 
     return $text;
   }
 
-  private function encode(
-    string $text
-  ) {
-    $b1 = 0x81;
-    $length = \strlen($text);
+  private function encode(string $text): string
+  {
+    $length = strlen($text);
 
-    if( $length <= 125 ){
-        return pack("CC", $b1, $length) . $text;
-    } elseif ( $length <= 65535 ){
-        return pack("CCn", $b1, 126, $length) . $text;
+    if($length <= 125){
+      return pack("CC", 0x81, $length) . $text;
+    } elseif($length <= 65535){
+      return pack("CCn", 0x81, 126, $length) . $text;
     } else {
-        return pack("CCNN", $b1, 127, 0, $length) . $text;
+      return pack("CCNN", 0x81, 127, 0, $length) . $text;
     }
   }
-  
-  private function clientSend(
-    Socket $socket, string $message
-  ) {
-    $message = $this->encode(
-      $message
-    );
 
-    return socket_write(
-      $socket,
-      $message, 
-      \strlen(
-        $message
-      )
-    );
+  private function broadcast(string $message): void
+  {
+    $encoded = $this->encode($message);
+
+    foreach($this->browsers as $index => $client){
+      $result = @socket_write($client, $encoded, strlen($encoded));
+      
+      if($result === false){
+        socket_close($client);
+        unset($this->browsers[$index]);
+      }
+    }
   }
-  
-  public function send(
-    string $message
-  ) {
-    Util::mapper(
-      WebSocket::$clients,
-      function( Socket $socket ) use( $message )  {
-        if( WebSocket::$socket === $socket ){
-          return $socket;
+
+  private function isHttpRequest(string $data): bool
+  {
+    return strpos($data, 'POST') === 0 || 
+           (strpos($data, 'GET') === 0 && strpos($data, 'Upgrade: websocket') === false);
+  }
+
+  private function handleHttpRequest(Socket $socket, string $data): void
+  {
+    preg_match('/\r\n\r\n(.*)$/s', $data, $match);
+    $body = $match[1] ?? '';
+
+    $message = $body ?: 'reload';
+    $this->broadcast($message);
+
+    $response = "HTTP/1.1 200 OK\r\n" .
+                "Content-Type: application/json\r\n" .
+                "Content-Length: 21\r\n" .
+                "Connection: close\r\n\r\n" .
+                '{"status":"success"}';
+
+    socket_write($socket, $response, strlen($response));
+    socket_close($socket);
+    
+    echo "Hot reload enviado para " . count($this->browsers) . " navegador(es)\n";
+  }
+
+  private function getClientType(string $headers): string
+  {
+    if(preg_match('#Sec-WebSocket-Protocol: (.*)\r\n#', $headers, $match)){
+      $protocol = trim($match[1]);
+      return $protocol === 'notifier' ? 'notifier' : 'browser';
+    }
+    return 'browser';
+  }
+
+  private function listen(): never
+  {
+    while(true){
+      $read = array_merge([$this->socket], $this->browsers, $this->notifiers);
+      
+      socket_select($read, $null, $null, 0, 10);
+
+      foreach($read as $socket){
+        if($socket === $this->socket){
+          $client = socket_accept($this->socket);
+          $request = socket_read($client, 2048);
+
+          if($this->isHttpRequest($request)){
+            $this->handleHttpRequest($client, $request);
+          } else {
+            $type = $this->getClientType($request);
+            $this->handshake($client, $request, $type);
+            echo "Cliente {$type} conectado - Navegadores: " . count($this->browsers) . " | Notificadores: " . count($this->notifiers) . "\n";
+          }
+
+          continue;
         }
 
-        if( $socket instanceof Socket ){
-          $result = $this->clientSend(
-            $socket, 
-            $message
-          );
-        } else {
-          // TODO para implementar Connections para remover
-          // WebSocket::$clients->remove( $socket );
+        $data = @socket_read($socket, 2048);
+
+        if($data === false || $data === ''){
+          $this->removeClient($socket);
+          continue;
         }
-        
-        if( $result === false ){
-          socket_close( $socket );
-          // TODO para implementar Connections para remover
-          // WebSocket::$clients->remove( $socket );
+
+        $message = $this->unmask($data);
+        if($message && in_array($socket, $this->notifiers)){
+          $this->broadcast($message);
+          echo "Notificação recebida via WebSocket: {$message}\n";
         }
       }
-    );
-  }  
-
-  private function defineListen(
-  ): never {
-    while(true){
-      $sockets = WebSocket::$clients;
-
-      socket_select(
-        $sockets,
-        $null,
-        $null, 
-        0,
-        10
-      );
-
-      foreach( $sockets as $socket ){
-        if ( WebSocket::$socket === $socket ){
-          WebSocket::$clients[] = $client = socket_accept(
-            WebSocket::$socket
-          );
-
-          $request = socket_read(
-            $client,
-            2048
-          );
-
-          $this->handshake(
-            $client,
-            $request
-          );
-
-          echo "Cliente conectado\n";
-
-          continue;
-        }
-
-        $socketData = socket_read(
-          $socket,
-          2048
-        );
-
-        if ($socketData === false) {
-          // TODO para implementar Connections para remover
-          // WebSocket::$clients->remove( $socket );
-          socket_close( $socket );
-          echo "Cliente desconectado\n";
-          continue;
-        }
-
-        $message = $this->unmask( $socketData );
-      }      
     }
   }
 
-  private function startup(
-  ) {
+  private function removeClient(Socket $socket): void
+  {
+    $key = array_search($socket, $this->browsers);
+    if($key !== false){
+      socket_close($socket);
+      unset($this->browsers[$key]);
+      echo "Navegador desconectado - Total: " . count($this->browsers) . "\n";
+      return;
+    }
+
+    $key = array_search($socket, $this->notifiers);
+    if($key !== false){
+      socket_close($socket);
+      unset($this->notifiers[$key]);
+      echo "Notificador desconectado - Total: " . count($this->notifiers) . "\n";
+    }
+  }
+
+  private function startup(): void
+  {
     $this->defineSocket();
-    $this->defineListen();
+    echo "Servidor Hot Reload rodando na porta {$this->port}\n";
+    $this->listen();
   }
 }

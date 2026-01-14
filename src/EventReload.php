@@ -2,13 +2,15 @@
 
 namespace Websyspro\DevTools;
 
-use Websyspro\Commons\Collection;
 use Websyspro\DevTools\Shareds\WebSocket;
+use Websyspro\DevTools\Shareds\WebSocketNotifier;
 
 class EventReload
 {
   private static WebSocket $webSocket;
   private static Process $process;
+
+  private static WebSocketNotifier $webSocketNotifier;
 
   public function statup(
     WatchConfig|null $watchConfig = null
@@ -30,13 +32,11 @@ class EventReload
   }
 
   private function notifyClients(): void {
-    $socket = @socket_create( AF_INET, SOCK_STREAM, SOL_TCP);
-    if( $socket ){
-      if( socket_connect( $socket, '127.0.0.1', 3000 ) === true){
-        socket_write( $socket, "notification" );
-        socket_close( $socket );
-      }
+    if( isset( EventReload::$webSocketNotifier ) === false ){
+      EventReload::$webSocketNotifier = new WebSocketNotifier();
     }
+
+    EventReload::$webSocketNotifier->notify( "reload" );
   } 
 
   /**
