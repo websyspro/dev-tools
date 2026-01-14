@@ -17,20 +17,20 @@ class Process
 
   public function websocket(
   ) {
-    if( file_exists( Util::path([
-      dirname(__FILE__), "Starteds", "Websocket.php"
-    ]))){
-      echo "File exists";
-    };
+    $run = new Run();
+    $run->command( 
+      Util::sprintFormat( 
+        "php %s", [
+          Util::path( [ 
+            dirname(__FILE__), "Starteds", "Websocket.php" 
+          ])
+        ]
+      )
+    );
 
-    // $run = new Run();
-    // $run->command( Util::path([
-    //   dirname(__FILE__), "Starteds", "Websocket.php"
-    // ]));
-
-    // if( $run->process !== false ){
-    //   Process::$runs->add( $run );
-    // }
+    if( $run->process !== false ){
+      Process::$runs->add( $run );
+    }
   }
 
   public function router(
