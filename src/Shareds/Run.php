@@ -29,15 +29,13 @@ class Run
       2 => $silence ? [ "file", $this->osSystemOrNull(), "w" ] : [ "pipe", "w" ],
     ];
 
-    print_r($message);
-
     $this->process = proc_open(
       $message, 
       $descriptors, 
       $pipes
     );
 
-    if( \is_resource( $this->process )){
+    if( \is_resource( $this->process ) === false ){
       throw new RuntimeException("Could not start process: {$message}");
     }
   }

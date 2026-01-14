@@ -8,7 +8,7 @@ use Websyspro\DevTools\Shareds\Run;
 
 class Process
 {
-  private static Collection $runs;
+  private static Collection $runs = new Collection();
 
   public function __construct(
   ){
