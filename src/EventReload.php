@@ -13,11 +13,15 @@ class EventReload
   public function statup(
     WatchConfig|null $watchConfig = null
   ) {
-    if( isset( EventReload::$process ) === false ){
-      EventReload::$process = new Process();
-    }
+    if( isset( EventReload::$webSocket ) === false ){
+      EventReload::$webSocket = new WebSocket( 3000 );
+    } 
+    // if( isset( EventReload::$process ) === false ){
+    //   EventReload::$process = new Process();
+    // }
 
-    EventReload::$process->websocket();
+    // EventReload::$process->websocket();
+
   }
 
   public function handle(
