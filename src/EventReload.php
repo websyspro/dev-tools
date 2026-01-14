@@ -27,9 +27,17 @@ class EventReload
     /* Clear screen for fresh output */
     $this->clearScreen();
 
-    // EventReload::$webSocket->send( 
-    //   "reloads from Menssage"
-    // );
+    $this->notifyClients();
+  }
+
+  private function notifyClients(): void {
+    $socket = @socket_create( AF_INET, SOCK_STREAM, SOL_TCP);
+    if( $socket === false ) return;
+
+    if(@socket_connect( $socket, '127.0.0.1', 3000)) {
+      socket_write( $socket, "notification" );
+      socket_close( $socket );
+    }
   }  
 
   /**
