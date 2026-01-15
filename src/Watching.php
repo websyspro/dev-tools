@@ -319,26 +319,6 @@ class Watching
   }
 
   /**
-   * Displays initial logger message when starting to watch
-   * Shows the main header without any file change information
-   */
-  private function LoggerInitial(
-  ): void {
-    $this->events->mapper(
-      function(
-        string $event
-      ) {
-        if( class_exists( $event ) === true ){
-          Util::callUserClassFN( 
-            new $event, "statup", 
-            [ $this->watchConfig ]
-          );
-        }
-      }
-    );
-  } 
-
-  /**
    * Processes a single loop iteration for file change detection
    * Compares current file state with previous state to detect changes
    */
