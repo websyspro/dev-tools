@@ -359,9 +359,6 @@ class Watching
       if( $this->isWatchAdded() ){
         $this->watchAdded();
       }
-    } else {
-      /* First iteration - show initial message */
-      $this->LoggerInitial();
     }
 
     /* Save current state as previous for next iteration */
