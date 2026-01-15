@@ -60,7 +60,7 @@ class EventDebug extends EventUtils
 
     /* Display formatted header with file change information */
     print Util::sprintFormat(
-      "%s[%s]\033[0m %s @ %s\n\n", [
+      "%s[%s]\033[90m %s @ %s\n\n", [
         $color, $fileStatus->name, $watchFile->path, $watchFile->timestamp()
       ]
     );
