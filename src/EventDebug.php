@@ -22,11 +22,14 @@ use Websyspro\Commons\Util;
  * @author Websyspro Team
  * @version 1.0
  */
-class EventWatch
+class EventDebug extends EventUtils
 {
+  public string $eventName = "Debug";
+
   public function statup(
   ) {
-    // $this->LoggerInitial();
+    $this->loggerClearAll();
+    $this->loggerHeader();
   }
 
   /**
@@ -45,7 +48,8 @@ class EventWatch
     FileStatus $fileStatus
   ): void {
     /* Clear screen for fresh output */
-    //$this->LoggerInitial();
+    $this->loggerClearAll();
+    $this->loggerHeader();
 
     /* Define colors for different file status types */
     $color = match($fileStatus){
@@ -64,40 +68,6 @@ class EventWatch
     /* Execute the entry point and show results */
     $this->runEntryPoint();    
   }
-
-  /**
-   * Clear the terminal screen for fresh output display
-   * 
-   * Uses ANSI escape codes to clear the screen and position cursor at top-left.
-   * Automatically detects CI environments or redirected output to prevent
-   * clearing when not appropriate (e.g., in automated builds or file redirects).
-   * 
-   * @return void
-   */
-  private function clearScreen(
-  ): void {
-    /* Skip clearing in CI environments or when output is redirected */
-    if( function_exists( "posix_isatty" ) && !posix_isatty( STDOUT )) {
-        return; // CI / redirect
-    }
-
-    /* ANSI escape codes to clear screen and move cursor to top-left */
-    echo "\033[2J\033[H";
-  }
-
-  /**
-   * Displays initial logger message when starting to watch
-   * Shows the main header without any file change information
-   */
-  private function LoggerInitial(
-  ): void {
-    /* Clear screen and display initial watch header */
-    $this->clearScreen();
-
-    print Util::sprintFormat(
-      "\033[1mWebsyspro DevTools · Watch/Debug\033[0m\n\n", []
-    );
-  }   
 
   /**
    * Execute the application entry point and display debug information

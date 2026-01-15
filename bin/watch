@@ -3,9 +3,9 @@
 
 require __DIR__ . "/../../../autoload.php";
 
-use Websyspro\DevTools\EventWatch;
+use Websyspro\DevTools\EventDebug;
 use Websyspro\DevTools\Watching;
 
 $watching = new Watching();
-$watching->on( EventWatch::class );
+$watching->on( EventDebug::class );
 $watching->listen();
