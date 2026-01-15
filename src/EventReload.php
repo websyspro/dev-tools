@@ -2,10 +2,11 @@
 
 namespace Websyspro\DevTools;
 
+use Websyspro\Commons\Util;
 use Websyspro\DevTools\Shareds\WebSocket;
 use Websyspro\DevTools\Shareds\WebSocketNotifier;
 
-class EventReload
+class EventReload extends EventUtils
 {
   private static Process $process;
 
@@ -14,6 +15,13 @@ class EventReload
   public function statup(
     WatchConfig|null $watchConfig = null
   ) {
+    $this->loggerServicesAll();
+    $this->loggerClearAll();
+    $this->loggerHeader();    
+  }
+
+  private function loggerServicesAll(
+  ): void {
     if( isset( EventReload::$process ) === false ){
       EventReload::$process = new Process();
     }
@@ -26,9 +34,12 @@ class EventReload
     WatchFile $watchFile,
     FileStatus $fileStatus
   ): void {
-    /* Clear screen for fresh output */
-    $this->clearScreen();
-    $this->notifyClients();
+    /* Display formatted header with file change information */
+    print Util::sprintFormat(
+      "\033[32m[Reload]\033[90m %s @ %s\033[0m\n\n", [
+        $watchFile->path, $watchFile->timestamp()
+      ]
+    );
   }
 
   private function notifyClients(): void {
@@ -37,25 +48,5 @@ class EventReload
     }
 
     EventReload::$webSocketNotifier->notify( "reload" );
-  } 
-
-  /**
-   * Clear the terminal screen for fresh output display
-   * 
-   * Uses ANSI escape codes to clear the screen and position cursor at top-left.
-   * Automatically detects CI environments or redirected output to prevent
-   * clearing when not appropriate (e.g., in automated builds or file redirects).
-   * 
-   * @return void
-   */
-  private function clearScreen(
-  ): void {
-    /* Skip clearing in CI environments or when output is redirected */
-    if( function_exists( "posix_isatty" ) && !posix_isatty( STDOUT )) {
-        return; // CI / redirect
-    }
-
-    /* ANSI escape codes to clear screen and move cursor to top-left */
-    echo "\033[2J\033[H";
   }
 }
