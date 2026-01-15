@@ -253,7 +253,8 @@ class Watching
    */
   private function watchModified(
   ): void {
-    $this->watchModifiedDiff()->mapper( function(WatchFile $watchFile ) {
+    print_r($this->watchModifiedDiff());
+    $this->watchModifiedDiff()->mapper( function( WatchFile $watchFile ) {
       $this->doEvent( $watchFile, FileStatus::Modified );
     });
   }
