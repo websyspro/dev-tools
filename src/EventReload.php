@@ -36,6 +36,7 @@ class EventReload extends EventUtils
     FileStatus $fileStatus
   ): void {
     $this->loggerClearAll();
+    $this->loggerHeader(); 
     $this->loggerNotifyAll();
 
     /* Display formatted header with file change information */
