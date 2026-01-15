@@ -31,6 +31,13 @@ class EventReload extends EventUtils
     EventReload::$process->router();
   }
 
+  public function loggerHeader(
+  ) {
+    print Util::sprintFormat(
+      "\033[1mWebsyspro DevTools · Watch/{$this->eventName}\033[0m\n\n -> Local: http://localhost:3000/\n\n", []
+    );
+  }  
+
   public function handle(
     WatchFile $watchFile,
     FileStatus $fileStatus
