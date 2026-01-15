@@ -92,7 +92,7 @@ class EventWatch
   private function LoggerInitial(
   ): void {
     /* Clear screen and display initial watch header */
-    $this->clearScreen();
+    //$this->clearScreen();
     print Util::sprintFormat(
       "\033[1mWebsyspro DevTools · Watch/Debug\033[0m\n\n", []
     );
