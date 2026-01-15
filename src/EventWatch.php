@@ -26,7 +26,7 @@ class EventWatch
 {
   public function statup(
   ) {
-    $this->LoggerInitial();
+    // $this->LoggerInitial();
   }
 
   /**
