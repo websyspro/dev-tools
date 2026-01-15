@@ -45,17 +45,9 @@ class Process
 
   public function router(
   ) {
-    file_put_contents("config.json", Util::sprintFormat( 
-        "php -S localhost:8080 -t %s", [
-          Util::path( [ 
-            dirname(__FILE__), "Starteds", "Router.php" 
-          ])
-        ]
-      )
-    );
     $this->createRun(
       Util::sprintFormat( 
-        "php -S localhost:8080 -t %s", [
+        "php -S localhost:8080 %s", [
           Util::path( [ 
             dirname(__FILE__), "Starteds", "Router.php" 
           ])
