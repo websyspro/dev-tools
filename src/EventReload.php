@@ -19,6 +19,7 @@ class EventReload
     }
 
     EventReload::$process->websocket();
+    EventReload::$process->router();
   }
 
   public function handle(

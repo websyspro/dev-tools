@@ -44,7 +44,17 @@ class Process
   }
 
   public function router(
-  ) {}
+  ) {
+    $this->createRun(
+      Util::sprintFormat( 
+        "php %s", [
+          Util::path( [ 
+            dirname(__FILE__), "Starteds", "Router.php" 
+          ])
+        ]
+      )
+    );    
+  }
 
   private function registerShutdown( 
   ) {
