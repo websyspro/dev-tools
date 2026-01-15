@@ -47,7 +47,7 @@ class Process
   ) {
     $this->createRun(
       Util::sprintFormat( 
-        "php %s", [
+        "php -S localhost:8080 -t %s", [
           Util::path( [ 
             dirname(__FILE__), "Starteds", "Router.php" 
           ])
