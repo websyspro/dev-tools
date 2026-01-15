@@ -48,7 +48,7 @@ class EventDebug extends EventUtils
     FileStatus $fileStatus
   ): void {
     /* Clear screen for fresh output */
-    //$this->loggerClearAll();
+    $this->loggerClearAll();
     $this->loggerHeader();
 
     /* Define colors for different file status types */
