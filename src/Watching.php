@@ -331,7 +331,7 @@ class Watching
     if( $this->isLoopEvent() ) {
       /* Determine type of change and process accordingly */
       if( $this->isWatchModified() ){
-        //$this->watchModified();    
+        $this->watchModified();    
       } else
       if( $this->isWatchRemoved() ){
         $this->watchRemoved();
