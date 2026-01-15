@@ -126,7 +126,7 @@ class Watching
   private function watchFiles(
   ): Collection {
     /* Reduce all directories into a single collection of files */
-    $watchFiles = new Collection(
+    return new Collection(
       $this->watchConfig->directories->reduce(
         [], fn(array $curr, string $directory) => Util::merge(
           $curr, $this->filesFromDirectory( $directory )
@@ -134,16 +134,16 @@ class Watching
       )
     );
 
-    return $watchFiles->merge(
-      $this->watchConfig->files->mapper(
-        fn(string $file) => (
-          new WatchFile(
-            File::rootPath( $file ), 
-            File::timestamp(  $file)
-          )
-        )
-      )->all()
-    );
+    // return $watchFiles->merge(
+    //   $this->watchConfig->files->mapper(
+    //     fn(string $file) => (
+    //       new WatchFile(
+    //         File::rootPath( $file ), 
+    //         File::timestamp(  $file)
+    //       )
+    //     )
+    //   )->all()
+    // );
   }
 
   /**
@@ -254,7 +254,6 @@ class Watching
   private function watchModified(
   ): void {
     $this->watchModifiedDiff()->mapper( function( WatchFile $watchFile, int $index ) {
-      file_put_contents( "files_$index.txt", $watchFile);
       $this->doEvent( $watchFile, FileStatus::Modified );
     });
   }
