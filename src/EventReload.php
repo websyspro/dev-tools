@@ -8,6 +8,7 @@ use Websyspro\DevTools\Shareds\WebSocketNotifier;
 
 class EventReload extends EventUtils
 {
+  public string $eventName = "Reload";
   private static Process $process;
 
   private static WebSocketNotifier $webSocketNotifier;
