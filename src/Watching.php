@@ -334,10 +334,10 @@ class Watching
         $this->watchModified();    
       } else
       if( $this->isWatchRemoved() ){
-        $this->watchRemoved();
+        //$this->watchRemoved();
       } else
       if( $this->isWatchAdded() ){
-        $this->watchAdded();
+        //$this->watchAdded();
       }
     }
 
