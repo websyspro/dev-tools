@@ -34,17 +34,18 @@ class EventReload extends EventUtils
     WatchFile $watchFile,
     FileStatus $fileStatus
   ): void {
-    $this->notifyClients();
+    $this->loggerClearAll();
+    $this->loggerNotifyAll();
 
     /* Display formatted header with file change information */
     print Util::sprintFormat(
-      "\033[32m[Reload]\033[90m %s @ %s\033[0m\n\n", [
+      "\033[32m[Reload]\033[90m %s @ %s\033[0m\n", [
         $watchFile->path, $watchFile->timestamp()
       ]
     );
   }
 
-  private function notifyClients(): void {
+  private function loggerNotifyAll(): void {
     if( isset( EventReload::$webSocketNotifier ) === false ){
       EventReload::$webSocketNotifier = new WebSocketNotifier();
     }
