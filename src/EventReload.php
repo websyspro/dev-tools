@@ -34,6 +34,8 @@ class EventReload extends EventUtils
     WatchFile $watchFile,
     FileStatus $fileStatus
   ): void {
+    $this->notifyClients();
+
     /* Display formatted header with file change information */
     print Util::sprintFormat(
       "\033[32m[Reload]\033[90m %s @ %s\033[0m\n\n", [
