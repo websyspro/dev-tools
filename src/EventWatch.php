@@ -26,7 +26,7 @@ class EventWatch
 {
   public function statup(
   ) {
-
+    $this->LoggerInitial();
   }
 
   /**
@@ -56,7 +56,7 @@ class EventWatch
 
     /* Display formatted header with file change information */
     print Util::sprintFormat(
-      "%s[%s]\033[0m %s @ %s\n", [
+      "%s[%s]\033[0m %s @ %s\n\n", [
         $color, $fileStatus->name, $watchFile->path, $watchFile->timestamp()
       ]
     );
