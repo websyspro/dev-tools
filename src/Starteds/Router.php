@@ -69,6 +69,9 @@ if( Util::inArray( $requestUri, [ "/", "/index.php" ])) {
 
 		echo '<h1>Dev Error</h1>';
 		echo '<pre>' . htmlspecialchars((string)$e) . '</pre>';
+    echo Util::sprintFormat( "<script>%s</script>", [
+      file_get_contents( __DIR__ . "/../Scripts/reload.js" )
+    ]);
 		return true;
 	}
 }
