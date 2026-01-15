@@ -9,7 +9,7 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
  */
 if ($uri === '/reload.js') {
     header('Content-Type: application/javascript');
-    readfile(__DIR__ . '/reload.js');
+    readfile(__DIR__ . '/../Scripts/reload.js');
     return true;
 }
 
