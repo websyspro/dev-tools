@@ -25,7 +25,9 @@ use Websyspro\Commons\Util;
 class EventWatch
 {
   public function statup(
-  ) {}
+  ) {
+
+  }
 
   /**
    * Handle file system events and display formatted output
@@ -43,7 +45,7 @@ class EventWatch
     FileStatus $fileStatus
   ): void {
     /* Clear screen for fresh output */
-    $this->clearScreen();
+    $this->LoggerInitial();
 
     /* Define colors for different file status types */
     $color = match($fileStatus){
@@ -54,7 +56,7 @@ class EventWatch
 
     /* Display formatted header with file change information */
     print Util::sprintFormat(
-      "\033[1mWebsyspro DevTools · Watch\033[0m\n\n%s[%s]\033[0m %s @ %s\n", [
+      "\033[0m\n\n%s[%s]\033[0m %s @ %s\n", [
         $color, $fileStatus->name, $watchFile->path, $watchFile->timestamp()
       ]
     );
@@ -84,6 +86,19 @@ class EventWatch
   }
 
   /**
+   * Displays initial logger message when starting to watch
+   * Shows the main header without any file change information
+   */
+  private function LoggerInitial(
+  ): void {
+    /* Clear screen and display initial watch header */
+    $this->clearScreen();
+    print Util::sprintFormat(
+      "\033[1mWebsyspro DevTools · Watch/Debug\033[0m\n\n", []
+    );
+  }   
+
+  /**
    * Execute the application entry point and display debug information
    * 
    * Runs the main application script (index.php) using passthru() to
@@ -94,9 +109,6 @@ class EventWatch
    */
   private function runEntryPoint(
   ): void {
-    /* Display debug info with execution time followed by script output */
-    echo "\n[Debug]\n\n";
-
     /* Execute the main application entry point */
     passthru( "php index.php" );
   } 

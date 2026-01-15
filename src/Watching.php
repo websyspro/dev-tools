@@ -226,26 +226,6 @@ class Watching
         }
       }
     );
-
-    /* Clear screen for fresh output */
-    // $this->clearScreen();
-
-    /* Define colors for different file status types */
-    // $color = match($fileStatus){
-    //   FileStatus::Added => "\033[32m",    // Green
-    //   FileStatus::Modified => "\033[33m", // Yellow
-    //   FileStatus::Removed => "\033[31m",  // Red
-    // };
-
-    /* Display formatted header with file change information */
-    // print Util::sprintFormat(
-    //   "\033[1mWebsyspro DevTools · Watch\033[0m\n\n%s[%s]\033[0m %s @ %s\n", [
-    //     $color, $fileStatus->name, $watchFile->path, $watchFile->timestamp()
-    //   ]
-    // );
-
-    /* Execute the entry point and show results */
-    // $this->runEntryPoint();
   }
 
   /**
@@ -344,11 +324,17 @@ class Watching
    */
   private function LoggerInitial(
   ): void {
-    /* Clear screen and display initial watch header */
-    $this->clearScreen();
-    print Util::sprintFormat(
-      "\033[1mWebsyspro DevTools · Watch\033[0m", [
-      ]
+    $this->events->mapper(
+      function(
+        string $event
+      ) {
+        if( class_exists( $event ) === true ){
+          Util::callUserClassFN( 
+            new $event, "statup", 
+            [ $this->watchConfig ]
+          );
+        }
+      }
     );
   } 
 

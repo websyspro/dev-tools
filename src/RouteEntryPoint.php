@@ -2,6 +2,4 @@
 
 namespace Websyspro\DevTools;
 
-class RouteEntryPoint {
-  
-}
+class RouteEntryPoint {}
