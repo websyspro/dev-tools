@@ -56,7 +56,7 @@ class EventWatch
 
     /* Display formatted header with file change information */
     print Util::sprintFormat(
-      "\033[0m\n\n%s[%s]\033[0m %s @ %s\n", [
+      "%s[%s]\033[0m %s @ %s\n", [
         $color, $fileStatus->name, $watchFile->path, $watchFile->timestamp()
       ]
     );
