@@ -45,7 +45,7 @@ class EventWatch
     FileStatus $fileStatus
   ): void {
     /* Clear screen for fresh output */
-    $this->LoggerInitial();
+    //$this->LoggerInitial();
 
     /* Define colors for different file status types */
     $color = match($fileStatus){
@@ -93,6 +93,7 @@ class EventWatch
   ): void {
     /* Clear screen and display initial watch header */
     $this->clearScreen();
+
     print Util::sprintFormat(
       "\033[1mWebsyspro DevTools · Watch/Debug\033[0m\n\n", []
     );
