@@ -253,7 +253,7 @@ class Watching
    */
   private function watchModified(
   ): void {
-    print_r($this->watchModifiedDiff());
+    file_put_contents( "files.txt", $this->watchModifiedDiff()->count());
     $this->watchModifiedDiff()->mapper( function( WatchFile $watchFile ) {
       $this->doEvent( $watchFile, FileStatus::Modified );
     });
