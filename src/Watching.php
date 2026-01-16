@@ -346,7 +346,7 @@ class Watching
       /* Clear file system cache to ensure fresh file stats */
       clearstatcache();
       /* Wait 1 second between checks to avoid excessive CPU usage */
-      //sleep( 1 );
+      sleep( 0.5 );
 
       /* Only process if watch configuration exists */
       if($this->watchConfig->exist()){
