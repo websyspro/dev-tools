@@ -26,6 +26,10 @@ class EventDebug extends EventUtils
 {
   public string $eventName = "Debug";
 
+  public function __construct(
+    public WatchConfig $watchConfig
+  ){}  
+
   public function statup(
   ) {
     $this->loggerClearAll();

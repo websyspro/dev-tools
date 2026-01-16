@@ -184,7 +184,7 @@ class Watching
       ) {
         if( class_exists( $event ) === true ){
           Util::callUserClassFN( 
-            new $event, "statup", []
+            new $event( $this->watchConfig ), "statup", []
           );
         }
       }
@@ -209,7 +209,7 @@ class Watching
       ) {
         if( class_exists( $event ) === true ){
           Util::callUserClassFN( 
-            new $event, "handle", 
+            new $event( $this->watchConfig ), "handle", 
             [ $watchFile, $fileStatus ]
           );
         }

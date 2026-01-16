@@ -13,6 +13,10 @@ class EventReload extends EventUtils
 
   private static WebSocketNotifier $webSocketNotifier;
 
+  public function __construct(
+    public WatchConfig $watchConfig
+  ){}
+
   public function statup(
     WatchConfig|null $watchConfig = null
   ) {
