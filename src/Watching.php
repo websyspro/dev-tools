@@ -67,8 +67,8 @@ class Watching
 
       /** Create WatchConfig instance with directories and files from JSON */
       $this->watchConfig = new WatchConfig(
-        $watchConfigFile->directories,
-        $watchConfigFile->files
+        new Collection( $watchConfigFile->directories ),
+        $watchConfigFile->reload->port
       );
     } else {
       /** If no config file exists, create default WatchConfig with empty settings */
@@ -133,17 +133,6 @@ class Watching
         )
       )
     );
-
-    // return $watchFiles->merge(
-    //   $this->watchConfig->files->mapper(
-    //     fn(string $file) => (
-    //       new WatchFile(
-    //         File::rootPath( $file ), 
-    //         File::timestamp(  $file)
-    //       )
-    //     )
-    //   )->all()
-    // );
   }
 
   /**
