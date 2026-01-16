@@ -28,7 +28,9 @@ class EventReload extends EventUtils
   private function loggerServicesAll(
   ): void {
     if( isset( EventReload::$process ) === false ){
-      EventReload::$process = new Process();
+      EventReload::$process = new Process(
+        $this->watchConfig
+      );
     }
 
     EventReload::$process->websocket();

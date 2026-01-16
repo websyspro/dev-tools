@@ -11,6 +11,7 @@ class Process
   private static Collection $runs;
 
   public function __construct(
+    private WatchConfig $watchConfig
   ){
     $this->registerShutdown();
   }
@@ -47,7 +48,7 @@ class Process
   ) {
     $this->createRun(
       Util::sprintFormat( 
-        "php -S localhost:8080 %s", [
+        "php -S localhost:{$this->watchConfig->port} %s", [
           Util::path( [ 
             dirname(__FILE__), "Starteds", "Router.php" 
           ])
