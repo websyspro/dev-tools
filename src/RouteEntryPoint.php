@@ -2,22 +2,20 @@
 
 namespace Websyspro\DevTools;
 
+use Websyspro\DevTools\Enums\MimeType;
 use Websyspro\Commons\Collection;
 use Websyspro\Commons\File;
 use Websyspro\Commons\Util;
-use Websyspro\DevTools\Enums\MimeType;
-
-if( defined( "PUBLICS" ) === false ){
-  define( "PUBLICS", []);
-}
 
 class RouteEntryPoint
 {
   public function __construct(
     public string|null $requestUri = null,
+    public string|null $requestQuery = null,
     public Collection $publics = new Collection(PUBLICS)
   ){
     $this->defineRequestUri();
+    $this->defineServerVars();
     $this->definePublicUrl();
   }
 
@@ -111,6 +109,21 @@ class RouteEntryPoint
     header( $this->getHeaderContentLength());
     readfile( $this->requestUri());
     exit();
+  }
+
+  public function defineServerVars(
+  )  {
+    [ $requestUri ] = explode( 
+      "?", $_SERVER[
+        "REQUEST_URI"
+      ]
+    );
+
+    $_SERVER = array_merge(
+      $_SERVER, [
+        "PHP_SELF" => $requestUri,
+      ]
+    );
   }
 
   public function isDynamicExist(
