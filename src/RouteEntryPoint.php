@@ -2,6 +2,7 @@
 
 namespace Websyspro\DevTools;
 
+use Throwable;
 use Websyspro\DevTools\Enums\MimeType;
 use Websyspro\Commons\Collection;
 use Websyspro\Commons\File;
@@ -276,4 +277,109 @@ class RouteEntryPoint
       ? "{$bootstraps->first()}/index.php"
       : "notfound.php";
   }
+
+  /**
+   * Get the path to the reload.js script file
+   * 
+   * @return string Full path to reload.js
+   */
+  public function scriptReload(
+  ): string {
+    /* Return the absolute path to the live-reload script */
+    return __DIR__ . "/Scripts/reload.js";
+  }
+
+  /**
+   * Inject live-reload script into HTML and send response to client
+   * 
+   * @param string $html The HTML content to be sent
+   * @return void
+   */
+  public function sendReader(
+    string $html
+  ): void {
+    /* Check if reload script exists and inject it into HTML */
+    if( file_exists( $this->scriptReload())){
+      /* If HTML has closing body tag, inject script before it */
+      if( stripos( $html, "</body>" )){
+        $html = str_replace(
+          "</body>", Util::sprintFormat(
+            "<script>%s</script></body>", 
+            [
+              file_get_contents(
+                $this->scriptReload()
+              )
+            ]
+          ), $html
+        );
+      } else {
+        /* Otherwise append script at the end of HTML */
+        $html .= Util::sprintFormat( 
+          "<script>%s</script>", [
+            file_get_contents(
+              $this->scriptReload()
+            )
+          ]
+        );
+      }
+    }
+
+    /* Calculate content length for HTTP header */
+    $contentLength = Util::sizeText( $html );
+
+    /* Send HTTP headers with content type and length */
+    header( "Content-Type: text/html;charset=UTF-8" );
+    header( "Content-Length: {$contentLength}" );
+    
+    /* Output the final HTML content */
+    print $html;
+  }
+
+  /**
+   * Display a formatted error page for development debugging
+   * Shows error type, message, location, and stack trace
+   * 
+   * @param Throwable $throwable The exception or error to display
+   * @return bool Always returns true
+   */
+  public function sendErrorReader(
+    Throwable $throwable
+  ): bool {
+		/* Clean up output buffer if active */
+		if( ob_get_level() ){
+			ob_end_clean();
+		}
+
+		/* Set HTTP 500 status and content type */
+		http_response_code( 500 );
+		header( 'Content-Type: text/html');
+
+		/* Output HTML structure with dark theme styling */
+		echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Error - Development Server</title><style>body{font-family:system-ui,sans-serif;margin:0;padding:20px;background:#1e1e1e;color:#d4d4d4}h1{color:#f48771;margin:0 0 20px}h2{color:#4ec9b0;font-size:18px;margin:20px 0 10px}.error-box{background:#252526;border-left:4px solid #f48771;padding:15px;margin:10px 0;border-radius:4px}.error-message{color:#ce9178;font-size:16px;margin-bottom:10px}.error-file{color:#9cdcfe;font-size:14px}.error-line{color:#b5cea8;font-weight:bold}.stack-trace{background:#1e1e1e;border:1px solid #3e3e42;padding:15px;border-radius:4px;overflow-x:auto;font-family:"Courier New",monospace;font-size:13px;line-height:1.6;color:#cccccc}</style></head><body>';
+		
+		/* Display error page title */
+		echo '<h1>Development Error</h1>';
+		
+		/* Display error details in formatted box */
+		echo '<div class="error-box">';
+		echo '<h2>Error Type</h2>';
+		echo '<div class="error-message">' . htmlspecialchars(get_class($throwable)) . '</div>';
+		echo '<h2>Message</h2>';
+		echo '<div class="error-message">' . htmlspecialchars($throwable->getMessage()) . '</div>';
+		echo '<h2>Location</h2>';
+		echo '<div class="error-file">File: ' . htmlspecialchars($throwable->getFile()) . '</div>';
+		echo '<div class="error-line">Line: ' . $throwable->getLine() . '</div>';
+		echo '</div>';
+		
+		/* Display stack trace for debugging */
+		echo '<h2>Stack Trace</h2>';
+		echo '<div class="stack-trace">' . nl2br(htmlspecialchars($throwable->getTraceAsString())) . '</div>';
+		
+		/* Inject reload script and close HTML */
+		echo Util::sprintFormat( "<script>%s</script></body></html>", [
+			file_get_contents( __DIR__ . "/src/Scripts/reload.js" )
+		]);
+
+    return true;
+  }  
 }

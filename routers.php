@@ -13,25 +13,34 @@ declare( strict_types=1 );
 
 use Websyspro\DevTools\RouteEntryPoint;
 
-// Initialize route manager
+/* Initialize route manager to handle incoming request */
 $routeEntryPoint = new RouteEntryPoint();
 
-// Check if request is for a static file
+/* Check if request is for a static file (CSS, JS, images, etc.) */
 if ($routeEntryPoint->isStatic()) {
-  // Validate if static file is allowed to be served
+  /* Validate if static file has allowed MIME type and can be served */
   if ($routeEntryPoint->isStaticAllowed()) {
+    /* Send static file with appropriate headers and terminate */
     $routeEntryPoint->sendStatic();
   }
 } else {
-
-  ob_start();
+  /* Handle dynamic PHP requests with error handling */
+  try {
+    /* Start output buffering to capture dynamic content */
+    ob_start();
   
-  // Dynamic request: serve direct file or load bootstrap
-  require $routeEntryPoint->isDynamicExist() 
-    ? $routeEntryPoint->sendDirectFile()
-    : $routeEntryPoint->sendBootstrap();
+    /* Dynamic request: serve direct file if exists, otherwise load bootstrap */
+    require $routeEntryPoint->isDynamicExist() 
+      ? $routeEntryPoint->sendDirectFile()
+      : $routeEntryPoint->sendBootstrap();
 
-  $routeEntryPointHtml = ob_get_clean();
-  
-  return $routeEntryPointHtml;
+    /* Inject reload script and send HTML response to client */
+    $routeEntryPoint->sendReader(
+      ob_get_clean()
+    );
+
+  } catch( Throwable $e ) {
+    /* Display formatted error page if exception occurs */
+		return $routeEntryPoint->sendErrorReader( $e);    
+  }
 }
