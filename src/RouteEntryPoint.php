@@ -377,7 +377,7 @@ class RouteEntryPoint
 		
 		/* Inject reload script and close HTML */
 		echo Util::sprintFormat( "<script>%s</script></body></html>", [
-			file_get_contents( __DIR__ . "/src/Scripts/reload.js" )
+			file_get_contents( $this->scriptReload() )
 		]);
 
     return true;
