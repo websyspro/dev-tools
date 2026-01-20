@@ -48,13 +48,11 @@ class Process
   ) {
     $this->createRun(
       Util::sprintFormat( 
-        "php -S localhost:{$this->watchConfig->port} %s", [
-          Util::path( [ 
-            dirname(__FILE__), "Starteds", "index.php" 
-          ])
+        "php -S localhost:%s %s", [
+          $this->watchConfig->port, "index.php"
         ]
       )
-    );    
+    );
   }
 
   private function registerShutdown( 
