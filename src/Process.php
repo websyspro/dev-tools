@@ -50,7 +50,7 @@ class Process
       Util::sprintFormat( 
         "php -S localhost:{$this->watchConfig->port} %s", [
           Util::path( [ 
-            dirname(__FILE__), "Starteds", "Router.php" 
+            dirname(__FILE__), "Starteds", "index.php" 
           ])
         ]
       )
