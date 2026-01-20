@@ -23,8 +23,15 @@ if ($routeEntryPoint->isStatic()) {
     $routeEntryPoint->sendStatic();
   }
 } else {
+
+  ob_start();
+  
   // Dynamic request: serve direct file or load bootstrap
   require $routeEntryPoint->isDynamicExist() 
     ? $routeEntryPoint->sendDirectFile()
     : $routeEntryPoint->sendBootstrap();
+
+  $routeEntryPointHtml = ob_get_clean();
+  
+  return $routeEntryPointHtml;
 }
