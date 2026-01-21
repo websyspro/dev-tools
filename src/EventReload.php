@@ -40,7 +40,7 @@ class EventReload extends EventUtils
   public function loggerHeader(
   ) {
     print Util::sprintFormat(
-      "\033[1mWebsyspro DevTools · Watch/{$this->eventName}\033[0m\n\nLocal: http://localhost:%s\n\n", [
+      "\033[1mWebsyspro DevTools · Watch/{$this->eventName}\033[0m\n\nLocal: http://localhost%s\n\n", [
         (int)$this->watchConfig->port !== 80 ? ":{$this->watchConfig->port}" : ""
       ]
     );
