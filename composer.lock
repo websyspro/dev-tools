@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a80685f343920a5aad4a1ec707d244c4",
+    "content-hash": "0d14ec3078a87798e6ce85898be2e931",
     "packages": [
         {
             "name": "websyspro/commons",
@@ -43,13 +43,56 @@
                 "source": "https://github.com/websyspro/commons/tree/main"
             },
             "time": "2026-01-17T21:48:23+00:00"
+        },
+        {
+            "name": "websyspro/elements",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/websyspro/elements.git",
+                "reference": "ba9524b8c89d0350f2e6129eb526995148f099eb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/websyspro/elements/zipball/ba9524b8c89d0350f2e6129eb526995148f099eb",
+                "reference": "ba9524b8c89d0350f2e6129eb526995148f099eb",
+                "shasum": ""
+            },
+            "require": {
+                "websyspro/commons": "dev-main",
+                "websyspro/devtools": "dev-main"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Websyspro\\Elements\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "websyspro",
+                    "email": "websyspro.services@gmail.com"
+                }
+            ],
+            "description": "PHP library for dynamic DOM element creation with support for attributes, nesting and HTML rendering",
+            "support": {
+                "issues": "https://github.com/websyspro/elements/issues",
+                "source": "https://github.com/websyspro/elements/tree/main"
+            },
+            "time": "2026-01-21T20:13:13+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "websyspro/commons": 20
+        "websyspro/commons": 20,
+        "websyspro/elements": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

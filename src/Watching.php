@@ -108,7 +108,7 @@ class Watching
     /* Iterate through all files in directory tree */
     foreach( $directoryInterator as $file ){
       /* Only process PHP files */
-      if( $file->isFile() === true && $file->getExtension() === "php" ){
+      if( $file->isFile() === true && Util::inArray( $file->getExtension(), [ "php", "css", "js" ]) ){
         /* Create WatchFile object with path and modification time */
         $files[] = new WatchFile(
           $file->getPathname(),

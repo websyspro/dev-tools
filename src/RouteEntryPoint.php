@@ -2,6 +2,7 @@
 
 namespace Websyspro\DevTools;
 
+use Dom\Document;
 use Throwable;
 use Websyspro\DevTools\Enums\MimeType;
 use Websyspro\Commons\Collection;
