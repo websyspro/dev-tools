@@ -49,8 +49,7 @@ class Process
     $this->createRun(
       Util::sprintFormat( 
         "php -S localhost:%s %s", [
-          (int)$this->watchConfig->port !== 80
-            ? ":{$this->watchConfig->port}" : "", "index.php"
+          $this->watchConfig->port, "index.php"
         ]
       )
     );

@@ -41,7 +41,7 @@ class EventReload extends EventUtils
   ) {
     print Util::sprintFormat(
       "\033[1mWebsyspro DevTools · Watch/{$this->eventName}\033[0m\n\nLocal: http://localhost:%s\n\n", [
-        $this->watchConfig->port
+        (int)$this->watchConfig->port !== 80 ? ":{$this->watchConfig->port}" : ""
       ]
     );
   }  
