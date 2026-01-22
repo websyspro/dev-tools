@@ -279,6 +279,25 @@ class RouteEntryPoint
       : "notfound.php";
   }
 
+  private function getServerRuntime(
+  ): bool {
+    if( php_sapi_name() === "cli-server" ){
+      return true;
+    }
+
+    if( !empty( $_SERVER[ "SERVER_SOFTWARE" ])){
+      if( stripos($_SERVER[ "SERVER_SOFTWARE" ], "apache" ) !== false){
+        return false;
+      }
+
+      if( stripos($_SERVER[ "SERVER_SOFTWARE" ], "nginx" ) !== false){
+        return false;
+      }
+    }
+
+    return false;
+  }  
+
   /**
    * Get the path to the reload.js script file
    * 
@@ -299,8 +318,12 @@ class RouteEntryPoint
   public function sendReader(
     string $html
   ): void {
+    $isScriptReload = file_exists(
+      $this->scriptReload()
+    ) && $this->getServerRuntime();
+
     /* Check if reload script exists and inject it into HTML */
-    if( file_exists( $this->scriptReload())){
+    if( $isScriptReload === true ){
       /* If HTML has closing body tag, inject script before it */
       if( stripos( $html, "</body>" )){
         $html = str_replace(
@@ -346,6 +369,10 @@ class RouteEntryPoint
   public function sendErrorReader(
     Throwable $throwable
   ): bool {
+    $isScriptReload = file_exists(
+      $this->scriptReload()
+    ) && $this->getServerRuntime();
+
 		/* Clean up output buffer if active */
 		if( ob_get_level() ){
 			ob_end_clean();
@@ -377,9 +404,11 @@ class RouteEntryPoint
 		echo '<div class="stack-trace">' . nl2br(htmlspecialchars($throwable->getTraceAsString())) . '</div>';
 		
 		/* Inject reload script and close HTML */
-		echo Util::sprintFormat( "<script>%s</script></body></html>", [
-			file_get_contents( $this->scriptReload() )
-		]);
+		if( $isScriptReload === true ){
+      echo Util::sprintFormat( "<script>%s</script></body></html>", [
+        file_get_contents( $this->scriptReload() )
+      ]);
+    }
 
     return true;
   }  
