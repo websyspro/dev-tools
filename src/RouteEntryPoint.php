@@ -41,20 +41,9 @@ class RouteEntryPoint
     /* Merge PUBLICS constant with vendor library paths if defined */
     if( defined( "PUBLICS" )){
       $this->publics = new Collection(
-        array_merge(PUBLICS, [
-          ROUTE_ROOT . "/vendor/websyspro/wpengine/src/Core",
-          ROUTE_ROOT . "/vendor/websyspro/elements/src",
-        ])
+        PUBLICS
       );
     }
-
-    /* Add default public directories to the collection */
-    $this->publics = $this->publics->merge(
-      new Collection([
-        ROUTE_ROOT . "/public",
-        ROUTE_ROOT . "/Public"
-      ])
-    );
   }
 
   /**
