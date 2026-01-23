@@ -9,14 +9,6 @@ use Websyspro\Commons\Collection;
 use Websyspro\Commons\File;
 use Websyspro\Commons\Util;
 
-if( defined('PUBLICS') === false ){
-  define( 'PUBLICS', []);
-}
-
-if( defined( "ROUTE_ROOT" ) === false ){
-  define( "ROUTE_ROOT", __DIR__ );
-}
-
 class RouteEntryPoint
 {
   /**
@@ -29,16 +21,51 @@ class RouteEntryPoint
   public function __construct(
     public string|null $requestUri = null,
     public string|null $requestQuery = null,
-    public Collection $publics = new Collection(PUBLICS)
+    public Collection|null $publics = null
   ){
+    $this->definePublicsExtras();
     $this->defineEnvironments();
     $this->defineRequestUri();
     $this->defineServerVars();
     $this->definePublicUrl();
   }
 
+  /**
+   * Initialize and merge public directories from various sources
+   * Combines PUBLICS constant with vendor paths and default public folders
+   * 
+   * @return void
+   */
+  public function definePublicsExtras(
+  ): void {
+    /* Merge PUBLICS constant with vendor library paths if defined */
+    if( defined( "PUBLICS" )){
+      $this->publics = new Collection(
+        array_merge(PUBLICS, [
+          ROUTE_ROOT . "/vendor/websyspro/wpengine/src/Core",
+          ROUTE_ROOT . "/vendor/websyspro/elements/src",
+        ])
+      );
+    }
+
+    /* Add default public directories to the collection */
+    $this->publics = $this->publics->merge(
+      new Collection([
+        ROUTE_ROOT . "/public",
+        ROUTE_ROOT . "/Public"
+      ])
+    );
+  }
+
+  /**
+   * Load and parse environment variables from .env file
+   * Sets environment variables using putenv()
+   * 
+   * @return void
+   */
   public function defineEnvironments(
   ): void {
+    /* Read .env file into collection */
     $envs = new Collection(
       file( Util::join(
         DIRECTORY_SEPARATOR, [
@@ -47,9 +74,16 @@ class RouteEntryPoint
       ))
     );
 
+    /* Filter out comment lines starting with # or ; */
     $envs = $envs->where( fn(string $line) => preg_match( "#^(\#|;)#", $line) === 0 );
+    
+    /* Remove empty lines */
     $envs = $envs->where( fn(string $line) => empty( trim( $line )) === false );
+    
+    /* Split each line into key=value pairs */
     $envs = $envs->mapper( fn(string $line) => explode( "=", $line ));
+    
+    /* Set environment variables after trimming quotes and whitespace */
     $envs = $envs->mapper( function( array $env ){
       [ $key, $val ] = $env;
 
@@ -279,17 +313,27 @@ class RouteEntryPoint
       : "notfound.php";
   }
 
+  /**
+   * Detect if running on PHP built-in development server
+   * Returns false for Apache and Nginx servers
+   * 
+   * @return bool True if running on PHP CLI server
+   */
   private function getServerRuntime(
   ): bool {
+    /* Check if running on PHP built-in CLI server */
     if( php_sapi_name() === "cli-server" ){
       return true;
     }
 
+    /* Check SERVER_SOFTWARE to detect Apache or Nginx */
     if( !empty( $_SERVER[ "SERVER_SOFTWARE" ])){
+      /* Return false for Apache server */
       if( stripos($_SERVER[ "SERVER_SOFTWARE" ], "apache" ) !== false){
         return false;
       }
 
+      /* Return false for Nginx server */
       if( stripos($_SERVER[ "SERVER_SOFTWARE" ], "nginx" ) !== false){
         return false;
       }
@@ -318,6 +362,7 @@ class RouteEntryPoint
   public function sendReader(
     string $html
   ): void {
+    /* Check if reload script exists and server is in development mode */
     $isScriptReload = file_exists(
       $this->scriptReload()
     ) && $this->getServerRuntime();
@@ -369,6 +414,7 @@ class RouteEntryPoint
   public function sendErrorReader(
     Throwable $throwable
   ): bool {
+    /* Check if reload script exists and server is in development mode */
     $isScriptReload = file_exists(
       $this->scriptReload()
     ) && $this->getServerRuntime();
@@ -403,7 +449,7 @@ class RouteEntryPoint
 		echo '<h2>Stack Trace</h2>';
 		echo '<div class="stack-trace">' . nl2br(htmlspecialchars($throwable->getTraceAsString())) . '</div>';
 		
-		/* Inject reload script and close HTML */
+		/* Inject reload script if in development mode and close HTML */
 		if( $isScriptReload === true ){
       echo Util::sprintFormat( "<script>%s</script></body></html>", [
         file_get_contents( $this->scriptReload() )
