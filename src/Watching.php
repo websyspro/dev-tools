@@ -126,11 +126,9 @@ class Watching
   private function watchFiles(
   ): Collection {
     /* Reduce all directories into a single collection of files */
-    return new Collection(
-      $this->watchConfig->directories->reduce(
-        [], fn(array $curr, string $directory) => Util::merge(
-          $curr, $this->filesFromDirectory( $directory )
-        )
+    return $this->watchConfig->directories->reduce(
+      [], fn(array $curr, string $directory) => Util::merge(
+        $curr, $this->filesFromDirectory( $directory )
       )
     );
   }
@@ -349,7 +347,7 @@ class Watching
       sleep( 1 );
 
       /* Only process if watch configuration exists */
-      if($this->watchConfig->exist()){
+      if( $this->watchConfig->directories->exist()){
         $this->loopEvent();
       }
     }
