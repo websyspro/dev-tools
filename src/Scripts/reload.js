@@ -1,5 +1,5 @@
 (() => {
-    const WS_URL = 'ws://localhost:3000';
+    const WS_URL = 'ws://localhost:4067';
 
     let socket;
     let reconnectDelay = 1000;
