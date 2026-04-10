@@ -3,7 +3,6 @@
 namespace Websyspro\DevTools;
 
 use Websyspro\Commons\Util;
-use Websyspro\DevTools\Shareds\WebSocket;
 use Websyspro\DevTools\Shareds\WebSocketNotifier;
 
 class EventReload extends EventUtils

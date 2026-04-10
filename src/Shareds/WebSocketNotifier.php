@@ -28,7 +28,7 @@ class WebSocketNotifier
    */
   public function __construct(
     private string $host = 'localhost',
-    private int $port = 4067
+    private int $port = 3036
   ){}
 
   /**
